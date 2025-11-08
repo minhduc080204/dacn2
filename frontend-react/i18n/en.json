@@ -2,7 +2,9 @@
   "yournamecoffee": "Your Name Coffee",    
   "search": "Search",
 
-  "offer": "We offer",
+  "categories": "Categories",
+  "similar": "Similar Products",
+  "trending": "Trending Now",
   "recommended": "Recommended for you",
   "review": "Our Happy clients say",
   "view_all": "View all",

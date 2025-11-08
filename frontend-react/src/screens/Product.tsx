@@ -1,29 +1,41 @@
-import React from 'react';
-import {View, Text, TouchableOpacity, ScrollView, Alert} from 'react-native';
+import React, { useContext, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Alert, FlatList } from 'react-native';
 
-import {text} from '../text';
-import {svg} from '../assets/svg';
-import {theme} from '../constants';
-import {quantityInCart, addedToCartMessage} from '../utils';
-import {useAppDispatch} from '../hooks';
-import {components} from '../components';
-import type {RootStackParamList} from '../types';
-import {useAppNavigation} from '../hooks';
+import { text } from '../text';
+import { svg } from '../assets/svg';
+import { theme } from '../constants';
+import { quantityInCart, addedToCartMessage } from '../utils';
+import { useAppDispatch } from '../hooks';
+import { components } from '../components';
+import type { RootStackParamList } from '../types';
+import { useAppNavigation } from '../hooks';
 import {
   removeFromCart,
   addToCart,
   fullRemoveFromCart,
 } from '../store/slices/cartSlice';
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BASE_URL_IMG } from '../config';
 import { t } from 'i18next';
+import { useGetSimilarQuery, useViewTrackingMutation } from '../store/slices/apiSlice';
+import { AuthContext } from '../context/AuthContext';
+import { getDeviceId } from '../utils/deviceId';
+import { responsiveWidth } from 'react-native-responsive-dimensions';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Product'>;
 
-const Product: React.FC<Props> = ({route}): JSX.Element => {
-  const {item} = route.params;
+const Product: React.FC<Props> = ({ route }): JSX.Element => {
+  const { item } = route.params;
   const navigation = useAppNavigation();
+  const { userInfor } = useContext(AuthContext);
   const dispatch = useAppDispatch();
+  const [viewTracking] = useViewTrackingMutation();
+
+  const {
+    data: similarData,
+    error: similarError,
+    isLoading: similarLoading,
+  } = useGetSimilarQuery(item.id);
 
   const renderStatusBar = () => {
     return <components.StatusBar />;
@@ -35,11 +47,28 @@ const Product: React.FC<Props> = ({route}): JSX.Element => {
     return <components.Header basket={true} goBack={true} />;
   };
 
+  useEffect(() => {
+    async function track() {
+      const deviceId = await getDeviceId();
+      console.log(deviceId, "dvid");
+
+      viewTracking({
+        user_id: userInfor ? userInfor.id : null,
+        product_id: item.id,
+        device_id: deviceId,
+      });
+    }
+
+    track();
+    console.log("tracking okkk");
+
+  }, []);
+
   const renderImage = () => {
     return (
-      <View style={{marginBottom: 30, backgroundColor: theme.colors.white}}>
+      <View style={{ marginBottom: 30, backgroundColor: theme.colors.white }}>
         <components.ImageBackground
-          source={{ uri: BASE_URL_IMG+item.image }}
+          source={{ uri: BASE_URL_IMG + item.image }}
           resizeMode='cover'
           style={{
             height: 390,
@@ -75,7 +104,7 @@ const Product: React.FC<Props> = ({route}): JSX.Element => {
 
   const renderDescription = () => {
     return (
-      <View style={{paddingHorizontal: 20, marginBottom: 20}}>
+      <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
         <View
           style={{
             flexDirection: 'row',
@@ -113,15 +142,49 @@ const Product: React.FC<Props> = ({route}): JSX.Element => {
             },
           },
         ],
-        {cancelable: false},
+        { cancelable: false },
       );
       return;
     }
   };
 
+  const renderSimilar = () => {
+    if (similarLoading){
+      return <components.Loader />;
+    }
+
+    const data = similarData?.filter((d)=>d.id!=item.id)
+    if (data && data.length > 0) {
+      return (
+        <View style={{ marginVertical: 30 }}>
+          <components.BlockHeading
+            title={t('similar')}
+            containerStyle={{ marginHorizontal: 20, marginBottom: 14}}
+          />
+          <FlatList
+            data={data}
+            horizontal={true}
+            contentContainerStyle={{ paddingLeft: 20 }}
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id + 're'}
+            pagingEnabled={true}
+            snapToInterval={theme.sizes.width - responsiveWidth(44.2)}
+            decelerationRate={0}
+            renderItem={({ item, index }) => {
+              const lastItem = index === data.length - 1;
+              return (
+                <components.RecommendedItem item={item} lastItem={lastItem} />
+              );
+            }}
+          />
+        </View>
+      );
+    }
+  };
+
   const renderButtons = () => {
     return (
-      <View style={{paddingHorizontal: 20, paddingBottom: 10}}>
+      <View style={{ paddingHorizontal: 20, paddingBottom: 10 }}>
         <View
           style={{
             height: 60,
@@ -134,14 +197,14 @@ const Product: React.FC<Props> = ({route}): JSX.Element => {
             justifyContent: 'space-between',
           }}
         >
-          <Text style={{...theme.fonts.DMSans_700Bold, fontSize: 20}}>
+          <Text style={{ ...theme.fonts.DMSans_700Bold, fontSize: 20 }}>
             ${item.price}
           </Text>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <TouchableOpacity onPress={() => dispatch(removeFromCart(item))}>
               <svg.DishMinusSvg />
             </TouchableOpacity>
-            <View style={{paddingHorizontal: 24}}>
+            <View style={{ paddingHorizontal: 24 }}>
               <Text
                 style={{
                   ...theme.fonts.DMSans_700Bold,
@@ -159,8 +222,8 @@ const Product: React.FC<Props> = ({route}): JSX.Element => {
           </View>
         </View>
         <components.Button
-          title={'+ '+t('add_cart')}
-          containerStyle={{marginBottom: 14}}
+          title={'+ ' + t('add_cart')}
+          containerStyle={{ marginBottom: 14 }}
           onPress={() => {
             // if (quantity > 0) {
             //   renderAlert();
@@ -187,12 +250,13 @@ const Product: React.FC<Props> = ({route}): JSX.Element => {
   const renderContent = () => {
     return (
       <ScrollView
-        contentContainerStyle={{flexGrow: 1}}
+        contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
       >
         {renderImage()}
         {renderDescription()}
         {renderButtons()}
+        {renderSimilar()}
       </ScrollView>
     );
   };

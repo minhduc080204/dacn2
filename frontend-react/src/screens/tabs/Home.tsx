@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { FlatList, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { responsiveWidth } from 'react-native-responsive-dimensions';
 
@@ -11,21 +11,37 @@ import BottomTabBar from '../../navigation/BottomTabBar';
 import {
   useGetCarouselQuery,
   useGetCategoriesQuery,
-  useGetProductsQuery
+  useGetProductsQuery,
+  useGetRecommendationsQuery,
+  useGetTrendingQuery
 } from '../../store/slices/apiSlice';
 import { setScreen } from '../../store/slices/tabSlice';
+import { AuthContext } from '../../context/AuthContext';
 
 const Home: React.FC = (): JSX.Element => {
   const { t } = useTranslation();
   
   const dispatch = useAppDispatch();
   const navigation = useAppNavigation();
+  const {userInfor} = useContext(AuthContext);
 
   const {
     data: carouselData,
     error: carouselError,
     isLoading: carouselLoading,
   } = useGetCarouselQuery();
+
+  const {
+    data: trendinglData,
+    error: trendinglError,
+    isLoading: trendinglLoading,
+  } = useGetTrendingQuery();
+
+  const {
+    data: recommendationsData,
+    error: recommendationsError,
+    isLoading: recommendationsLoading,
+  } = useGetRecommendationsQuery(userInfor?userInfor.id:0);
 
   const {
     data: categoriesData,
@@ -39,10 +55,8 @@ const Home: React.FC = (): JSX.Element => {
     isLoading: productsLoading,
   } = useGetProductsQuery();
 
-  const dishes = productsData instanceof Array ? productsData : [];
   const carousel = carouselData instanceof Array ? carouselData : [];
   const categories = categoriesData instanceof Array ? categoriesData : [];
-  const recommended = dishes?.filter((e) => e.is_bestseller) ?? [];
 
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number>(0);
 
@@ -150,7 +164,7 @@ const Home: React.FC = (): JSX.Element => {
       return (
         <View style={{ marginBottom: 30 }}>
           <components.BlockHeading
-            title={t('offer')}
+            title={t('categories')}
             onPress={() => {
               dispatch(setScreen('Menu'));
             }}
@@ -208,27 +222,25 @@ const Home: React.FC = (): JSX.Element => {
     return null;
   };
 
-  const renderRecommended = () => {
-    const slice = recommended?.slice(0, 12);
-
-    if (recommended.length > 0) {
+  const renderTrending = () => {
+    if (trendinglData && trendinglData.length > 0) {
       return (
         <View style={{ marginBottom: 30 }}>
           <components.BlockHeading
-            title={t('recommended')}
+            title={t('trending')}
             containerStyle={{ marginHorizontal: 20, marginBottom: 14 }}
           />
           <FlatList
-            data={slice}
+            data={trendinglData}
             horizontal={true}
             contentContainerStyle={{ paddingLeft: 20 }}
             showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.id+''}
             pagingEnabled={true}
             snapToInterval={theme.sizes.width - responsiveWidth(44.2)}
             decelerationRate={0}
             renderItem={({ item, index }) => {
-              const lastItem = index === slice.length - 1;
+              const lastItem = index === trendinglData.length - 1;
               return (
                 <components.RecommendedItem item={item} lastItem={lastItem} />
               );
@@ -237,9 +249,36 @@ const Home: React.FC = (): JSX.Element => {
         </View>
       );
     }
+  };
 
-    if (recommended.length === 0) {
-      return null;
+  const renderRecommended = () => {
+    if (recommendationsData && recommendationsData.products.length > 0) {
+      const data = recommendationsData.products
+      
+      return (
+        <View style={{ marginBottom: 30 }}>
+          <components.BlockHeading
+            title={t('recommended')}
+            containerStyle={{ marginHorizontal: 20, marginBottom: 14 }}
+          />
+          <FlatList
+            data={data}
+            horizontal={true}
+            contentContainerStyle={{ paddingLeft: 20 }}
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id+'re'}
+            pagingEnabled={true}
+            snapToInterval={theme.sizes.width - responsiveWidth(44.2)}
+            decelerationRate={0}
+            renderItem={({ item, index }) => {
+              const lastItem = index === data.length - 1;
+              return (
+                <components.RecommendedItem item={item} lastItem={lastItem} />
+              );
+            }}
+          />
+        </View>
+      );
     }
   };
 
@@ -284,6 +323,7 @@ const Home: React.FC = (): JSX.Element => {
       >
         {renderCarousel()}
         {renderCategories()}
+        {renderTrending()}
         {renderRecommended()}
         {renderReviews()}
       </ScrollView>

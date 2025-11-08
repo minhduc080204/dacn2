@@ -1,8 +1,8 @@
 import {ENDPOINTS} from './endpoints';
 
 const DEBUG = true;
-const BASE_URL = 'http://192.168.102.8:8000/';
-// const BASE_URL = 'http://127.0.0.1:8000/';
+// const BASE_URL = 'http://10.60.19.16:8000/';
+const BASE_URL = 'http://127.0.0.1:8000/';
 // const BASE_URL = 'https://duc.hieutrung.vn/';
 // const BASE_URL = 'http://192.168.100.53:8000/';
 // const BASE_URL = 'http://10.0.2.2:8000/';

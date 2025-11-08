@@ -20,4 +20,19 @@ class Product extends Model
     {
         return $this->belongsToMany(Tag::class);
     }
+
+    public function views()
+    {
+        return $this->hasMany(ProductView::class);
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function similar()
+    {
+        return $this->hasMany(SimilarProduct::class, 'product_id');
+    }
 }
