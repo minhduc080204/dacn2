@@ -2,7 +2,9 @@
   "yournamecoffee": "Your Name Coffee",  
   "search": "Tìm kiếm",
 
-  "offer": "Xu hướng",
+  "categories": "Danh mục",
+  "similar": "Sản phẩm tương tự",
+  "trending": "Nổi bật gần đây",
   "recommended": "Gợi ý cho bạn",
   "review": "Bình luận của khách hàng",
   "view_all": "Xem tất cả",

@@ -18,8 +18,7 @@
         "predis/predis": "^2.2",
         "pusher/pusher-php-server": "^7.2",
         "spatie/laravel-permission": "*",
-        "tymon/jwt-auth": "^2.1",
-        "yoeunes/toastr": "^3.0"
+        "tymon/jwt-auth": "^2.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

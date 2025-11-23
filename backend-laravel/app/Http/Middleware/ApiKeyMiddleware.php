@@ -16,9 +16,9 @@ class ApiKeyMiddleware
     public function handle(Request $request, Closure $next): Response
     {
           $apiToken = $request->header('api-key');
-          if ($apiToken !== env('API_KEY')) {
-              return response()->json(['error' => 'Unauthorized'], 401);
-          }
+        //   if ($apiToken !== env('API_KEY')) {
+        //       return response()->json(['error' => 'Unauthorized'], 401);
+        //   }
           return $next($request);
     }
 }

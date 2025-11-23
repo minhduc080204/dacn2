@@ -12,6 +12,10 @@ export const ENDPOINTS = {
     promocodes: 'api/promocodes',
     categories: 'api/categories',
     bankinfor: 'api/bank',    
+    favorites: 'api/favorites',
+    recommendations: 'api/recommendations',
+    trending: 'api/trending',
+    similar: 'api/similar',
   },
   chat: 'admin/chat',
   post: {
@@ -19,6 +23,14 @@ export const ENDPOINTS = {
     discount: 'api/checkdiscount',
     message: 'api/message',
     sendmessage: 'api/sendmessage',
+    favorite: {
+      add: 'api/favorite/add',
+      remove: 'api/favorite/remove',
+    },
+    tracking:{
+      view: 'api/tracking/view',
+      search: 'api/tracking/search',
+    }
   },
   auth: {
     check: 'api/auth/check',
