@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { FlatList, ScrollView } from 'react-native';
 import { responsiveWidth } from 'react-native-responsive-dimensions';
 
@@ -9,13 +9,32 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import BottomTabBar from '../../navigation/BottomTabBar';
 import { setScreen } from '../../store/slices/tabSlice';
 import { text } from '../../text';
+import { AuthContext } from '../../context/AuthContext';
+import { useGetFavoritesQuery } from '../../store/slices/apiSlice';
 
 const Favorite: React.FC = (): JSX.Element => {
   const dispatch = useAppDispatch();
-  const favorite = useAppSelector((state) => state.wishlistSlice.list);
+  const { userInfor } = useContext(AuthContext)
+
+  // chưa login
+  const favoriteStore = useAppSelector((state) => state.wishlistSlice.list);
+
+  //đẫ login
+  const {
+    data: favoriteslData,
+    error: favoriteslError,
+    isLoading: favoriteslLoading,
+  } = useGetFavoritesQuery();
+
+  // const favorites = userInfor?favoriteslData||[]:favoriteStore;
+  const favorites = favoriteStore;
+
+  console.log(favorites);
+  
+
   const renderStatusBar = () => {
     return <components.StatusBar />;
-  };  
+  };
   const renderHeader = () => {
     return (
       <components.Header title={t('favorite')} basket={true} userImage={true} />
@@ -25,7 +44,7 @@ const Favorite: React.FC = (): JSX.Element => {
   const renderDishes = () => {
     return (
       <FlatList
-        data={favorite}
+        data={favorites}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{
           paddingHorizontal: 20,
@@ -38,7 +57,7 @@ const Favorite: React.FC = (): JSX.Element => {
           marginBottom: 14,
         }}
         showsVerticalScrollIndicator={false}
-        renderItem={({item}) => {
+        renderItem={({ item }) => {
           return <components.FavoriteItem item={item} />;
         }}
       />
@@ -61,17 +80,17 @@ const Favorite: React.FC = (): JSX.Element => {
         }}
       >
         <components.Image
-          source={{uri: 'https://george-fx.github.io/dine-hub/09.jpg'}}
+          source={{ uri: 'https://george-fx.github.io/dine-hub/09.jpg' }}
           style={{
             width: responsiveWidth(100) - 100,
             aspectRatio: 1,
             alignSelf: 'center',
           }}
         />
-        <text.H2 style={{marginTop: 30, marginBottom: 14}}>
+        <text.H2 style={{ marginTop: 30, marginBottom: 14 }}>
           Your favorite list is empty!
         </text.H2>
-        <text.T16 style={{textAlign: 'center'}}>
+        <text.T16 style={{ textAlign: 'center' }}>
           Your list of favorite dishes is currently {'\n'} empty. Why not start
           adding dishes {'\n'} that you love?
         </text.T16>
@@ -82,13 +101,13 @@ const Favorite: React.FC = (): JSX.Element => {
   const renderContent = () => {
     return (
       <React.Fragment>
-        {favorite.length === 0 ? renderEmptyFavorite() : renderDishes()}
+        {favorites.length === 0 ? renderEmptyFavorite() : renderDishes()}
       </React.Fragment>
     );
   };
 
   const renderButton = (): JSX.Element | null => {
-    if (favorite.length === 0) {
+    if (favorites.length === 0) {
       return (
         <components.Button
           title={'Explore Our Menu'}

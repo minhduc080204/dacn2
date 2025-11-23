@@ -37,6 +37,9 @@ const Product: React.FC<Props> = ({ route }): JSX.Element => {
     isLoading: similarLoading,
   } = useGetSimilarQuery(item.id);
 
+  console.log(similarData, "SML");
+  
+
   const renderStatusBar = () => {
     return <components.StatusBar />;
   };

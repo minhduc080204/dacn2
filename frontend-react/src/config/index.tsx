@@ -12,13 +12,14 @@ const BASE_URL = 'http://127.0.0.1:8000/';
 const BASE_URL_IMG = BASE_URL+'storage/images/';
 
 const AUTHORIZATION_TOKEN = 'pvqmfonrbfsrwpcvckfvxiinlvveojqi';
+const API_KEY = 'pvqmfonrbfsrwpcvckfvxiinlvveojqi';
 
 const CONFIG = {
   headers: {
     'Content-Type': 'application/json',
     Authorization: 'Bearer ' + AUTHORIZATION_TOKEN,
-    'api-key': AUTHORIZATION_TOKEN,
+    'api-key': API_KEY,
   },
 };
 
-export {BASE_URL, BASE_URL_IMG , AUTHORIZATION_TOKEN, ENDPOINTS, CONFIG, DEBUG};
+export {BASE_URL, BASE_URL_IMG , AUTHORIZATION_TOKEN, API_KEY, ENDPOINTS, CONFIG, DEBUG};

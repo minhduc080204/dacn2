@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { AUTHORIZATION_TOKEN, BASE_URL, ENDPOINTS } from '../../config';
+import { API_KEY, AUTHORIZATION_TOKEN, BASE_URL, ENDPOINTS } from '../../config';
 
 import {
   BankInforType,
@@ -15,15 +15,20 @@ import {
 import { FavoriteType } from '../../types/FavoriteType';
 import { ViewTrackingType } from '../../types/ViewTrackingType';
 import { RecommendationType } from '../../types/RecommendationType';
+import { RootState } from '../store';
 
 export const apiSlice = createApi({
   reducerPath: 'apiSlice',
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
-    prepareHeaders: (headers) => {
+    prepareHeaders: (headers, { getState }) => {
       // Thêm header 'authorization' và 'api-key'
-      headers.set('authorization', `Bearer ${AUTHORIZATION_TOKEN}`);
-      headers.set('api-key', AUTHORIZATION_TOKEN); // Sửa dòng này để thêm api-key
+      const token = (getState() as RootState).userSlice.token;
+
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+      headers.set('api-key', API_KEY);
       return headers;
     },
   }),
@@ -58,7 +63,7 @@ export const apiSlice = createApi({
     getBankInfor: builder.query<BankInforType, void>({
       query: () => ENDPOINTS.get.bankinfor,
     }),
-    getFavorites: builder.query<FavoriteType[], void>({
+    getFavorites: builder.query<ProductType[], void>({
       query: () => ENDPOINTS.get.favorites,
     }),
     getRecommendations: builder.query<RecommendationType, number>({
@@ -103,25 +108,25 @@ export const apiSlice = createApi({
         body: code,
       }),
     }),
-    addFavorite: builder.mutation<void, { code: FavoriteType }>({
-      query: (code) => ({
+    addFavorite: builder.mutation<void, {productId: string}>({
+      query: (id) => ({
         url: ENDPOINTS.post.favorite.add,
         method: 'POST',
-        body: code
+        body: id
       })
     }),
-    removeFavorite: builder.mutation<void, { code: FavoriteType }>({
-      query: (code) => ({
-        url: ENDPOINTS.post.favorite.add,
+    removeFavorite: builder.mutation<void, {productId: string}>({
+      query: (id) => ({
+        url: ENDPOINTS.post.favorite.remove,
         method: 'POST',
-        body: code
+        body: id
       })
     }),
     viewTracking: builder.mutation<void, ViewTrackingType>({
-      query: (code) => ({
+      query: (data) => ({
         url: ENDPOINTS.post.tracking.view,
         method: 'POST',
-        body: code
+        body: data
       })
     }),
     searchTracking: builder.mutation<void, { code: any }>({

@@ -20,20 +20,7 @@ class AuthController extends Controller
         ]);
         return $this->respondWithToken(auth('api')->login($user));
     }
-
-    public function check(Request $request){        
-        $user = User::where('email', $request->email)->first();
-        Log::error($request);
-        if (!$user) {
-            return response()->json([
-                'id' => -1,
-            ]);
-        }
-
-        return $this->respondWithToken(auth('api')->login($user));        
-    }
-
-
+    
     public function login(Request $request)
     {
         $credentials = $request->only(['email', 'password']);
@@ -42,6 +29,35 @@ class AuthController extends Controller
         }
         return $this->respondWithToken($token);
     }
+
+    // public function check(Request $request){        
+    //     $user = User::where('email', $request->email)->first();
+    //     Log::error($request);
+    //     if (!$user) {
+    //         return response()->json([
+    //             'id' => -1,
+    //         ]);
+    //     }
+
+    //     return $this->respondWithToken(auth('api')->login($user));        
+    // }
+    public function check(Request $request)
+{
+    $user = User::where('email', $request->email)->first();
+    Log::error($request->all());
+
+    if (!$user) {
+        return response()->json(['id' => -1]);
+    }
+
+    try {
+        $token = auth('api')->login($user);
+        return $this->respondWithToken($token);
+    } catch (\Exception $e) {
+        Log::error('JWT error: '.$e->getMessage());
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
 
     public function me()
     {
