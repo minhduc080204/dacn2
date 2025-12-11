@@ -76,7 +76,7 @@ const Header: React.FC<Props> = ({
   useEffect(()=>{
     setUserAvatar(userInfor?.picture? userInfor.picture :'https://george-fx.github.io/dine-hub/10.jpg')
   },[userInfor])
-
+  console.log(userAvatar, "AVT");
 
   const handleOnPress = () => {
     // if (cart.length > 0) {
