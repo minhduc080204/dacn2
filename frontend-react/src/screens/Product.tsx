@@ -37,15 +37,11 @@ const Product: React.FC<Props> = ({ route }): JSX.Element => {
     isLoading: similarLoading,
   } = useGetSimilarQuery(item.id);
 
-  console.log(similarData, "SML");
-  
-
   const renderStatusBar = () => {
     return <components.StatusBar />;
   };
 
   const quantity = (quantityInCart(item) as number) || 0;
-
   const renderHeader = () => {
     return <components.Header basket={true} goBack={true} />;
   };
